@@ -1,0 +1,75 @@
+{
+  "description": "Golden set for regression testing the RAG pipeline. Sources are matched as substrings of the original document path.",
+  "questions": [
+    {
+      "id": "easy-accept-decline",
+      "kind": "easy",
+      "question": "Who can accept or decline a participation request?",
+      "expected_sources_all": ["openspec/specs/activity-participation/spec.md"],
+      "answer_contains_all": ["organizer"]
+    },
+    {
+      "id": "easy-cancel-failed",
+      "kind": "easy",
+      "question": "What happens when cancelling a participation fails?",
+      "expected_sources_all": ["doc/use-case/cancel-participation-use-case.md"],
+      "answer_contains_all": ["still"]
+    },
+    {
+      "id": "easy-rick-age",
+      "kind": "easy",
+      "question": "How old is Rick?",
+      "expected_sources_all": ["user-interview-rick.en.md"],
+      "answer_contains_all": ["29"]
+    },
+    {
+      "id": "easy-app-name",
+      "kind": "easy",
+      "question": "What is the app called, and which working name did that name replace?",
+      "expected_sources_all": ["naming/naming.md"],
+      "answer_contains_all": ["Wasn.jetzt", "ActLocal"]
+    },
+    {
+      "id": "tricky-ai-concerns",
+      "kind": "tricky",
+      "question": "What concerns do interviewees have about AI recommendations?",
+      "expected_sources_any": ["user-interview-alex.en.md", "user-interview-rick.en.md"],
+      "forbidden_sources": ["risk-register", "legal-and-ethical"],
+      "answer_contains_any": ["slop", "hallucination", "skeptic"]
+    },
+    {
+      "id": "tricky-approaching-people",
+      "kind": "tricky",
+      "question": "Why do people hesitate to approach new people at events?",
+      "expected_sources_any": ["user-interviews/"],
+      "answer_contains_any": ["burden", "annoy", "unpleasant", "uncomfortable"]
+    },
+    {
+      "id": "tricky-advertising",
+      "kind": "tricky",
+      "question": "What do interviewees say about advertising in an app?",
+      "expected_sources_any": ["user-interview-rick.en.md", "user-interview-kat.en.md", "user-interview-veronika.en.md"],
+      "answer_contains_any": ["advertis"]
+    },
+    {
+      "id": "tricky-cross-document",
+      "kind": "tricky",
+      "question": "Why does the app let organizers approve participation requests, and how does a person request to join?",
+      "expected_sources_all": ["doc/use-case/send-participation-request-use-case.md", "user-interviews/"],
+      "answer_contains_any": ["request"],
+      "known_issue": "The 'why' is not retrieved from the interviews, so the model generalises."
+    },
+    {
+      "id": "unanswerable-ceo",
+      "kind": "unanswerable",
+      "question": "What is the shoe size of the CEO?",
+      "expect_refusal": true
+    },
+    {
+      "id": "unanswerable-premium-price",
+      "kind": "unanswerable",
+      "question": "How much does the premium subscription cost?",
+      "expect_refusal": true
+    }
+  ]
+}

@@ -5,6 +5,7 @@
   "scripts": {
     "rag:deterministic": "tsx src/rag/deterministic-chain.ts",
     "ingest": "tsx src/ingest/ingest.ts",
+    "eval:golden": "tsx src/eval/run-golden-set.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

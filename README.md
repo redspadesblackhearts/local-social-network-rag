@@ -31,6 +31,18 @@ npm run ingest -- --reset     # delete the namespace first (removes stale chunks
 The PDFs have no heading markers, so headings are detected by font size (20 / 15 / 12.5 / 11 pt).
 Each original file is recovered from its `Source file:` line.
 
+## Ask and test
+
+```bash
+npm run rag:deterministic -- "Who can accept a participation request?"
+npm run eval:golden                       # 10 golden questions, exit code 1 on a regression
+npm run eval:golden -- --only easy-rick-age,unanswerable-ceo
+```
+
+`golden/golden-set.json` holds easy, tricky and unanswerable questions with the expected sources,
+answer keywords and refusals. A question with `known_issue` is reported but does not fail the run.
+Re-run it after any change to chunking, retrieval or the prompt.
+
 ## Layout
 
 | Path | Purpose |
