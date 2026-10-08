@@ -4,19 +4,16 @@ import type {
   ScoredPineconeRecord,
 } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
+import { EMBEDDING_MODEL, pineconeConfig } from "./config.js";
 import type { SearchDocumentsInput, SearchHit } from "./types.js";
-
-const INDEX_NAME =
-  process.env.WORKSHOP_PINECONE_INDEX ?? "local-social-network";
-const NAMESPACE = process.env.WORKSHOP_PINECONE_NAMESPACE ?? "lsn-own-rag";
-const EMBEDDING_MODEL = "text-embedding-3-small";
 
 async function getNamespace() {
   const apiKey = process.env.PINECONE_API_KEY;
   if (!apiKey) throw new Error("Missing PINECONE_API_KEY");
+  const { indexName, namespace } = pineconeConfig();
   const pc = new Pinecone({ apiKey });
-  const host = (await pc.describeIndex(INDEX_NAME)).host;
-  return pc.index(INDEX_NAME, host).namespace(NAMESPACE);
+  const host = (await pc.describeIndex(indexName)).host;
+  return pc.index(indexName, host).namespace(namespace);
 }
 
 function getOpenAI(): OpenAI {
