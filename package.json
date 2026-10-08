@@ -1,0 +1,20 @@
+{
+  "name": "local-social-network-rag",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "example:rag:deterministic": "tsx example/rag/deterministic-chain.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.2.16",
+    "@langchain/openai": "^1.6.2",
+    "@pinecone-database/pinecone": "^9.0.0",
+    "openai": "^7.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
