@@ -45,6 +45,7 @@ function hitFromMatch(match: ScoredPineconeRecord<RecordMetadata>): SearchHit {
     document: text(meta.document),
     doc_title: text(meta.doc_title),
     heading: text(meta.heading),
+    headings: Array.isArray(meta.headings) ? meta.headings.map(String) : undefined,
     category: text(meta.category),
     interviewee: text(meta.interviewee),
   };

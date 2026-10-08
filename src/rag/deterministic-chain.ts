@@ -6,6 +6,10 @@
  * Usage:
  *   npm run rag:deterministic
  *   npm run rag:deterministic -- "Why do we require approval to join an activity?"
+ *   npm run rag:deterministic -- --category interview "What do users dislike about WhatsApp?"
+ *
+ * Questions that mention interviews are restricted to the interview chunks automatically;
+ * otherwise a topical match elsewhere (e.g. the risk register) outranks the interviews.
  */
 
 import { ChatOpenAI } from "@langchain/openai";
@@ -28,6 +32,22 @@ const SYSTEM_PROMPT =
   "and cite the chunks you use as [1], [2] directly after the statement. " +
   `Only if none of the chunks contains relevant information, reply exactly: "${NOT_FOUND}" ` +
   "Never answer from general knowledge and never guess.";
+
+const CATEGORIES = ["interview", "use-case", "capability-spec"];
+
+function parseArgs(argv: string[]): { question: string; category?: string } {
+  const words: string[] = [];
+  let category: string | undefined;
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--category") category = argv[++i];
+    else words.push(argv[i]);
+  }
+  const question = words.join(" ").trim() || DEFAULT_QUESTION;
+  if (category && !CATEGORIES.includes(category)) {
+    throw new Error(`Unknown --category "${category}". Use one of: ${CATEGORIES.join(", ")}`);
+  }
+  return { question, category: category ?? (/\binterview/i.test(question) ? "interview" : undefined) };
+}
 
 function usableHits(hits: SearchHit[]): SearchHit[] {
   return hits.filter((h) => h.id !== "none").slice(0, TOP_K);
@@ -61,7 +81,12 @@ function citedSources(answer: string, hits: SearchHit[]): string[] {
   return hits
     .map((h, i) => ({ n: i + 1, hit: h }))
     .filter(({ n }) => cited.has(n))
-    .map(({ n, hit }) => `[${n}] ${describeSource(hit)}  → ${hit.id}`);
+    .map(({ n, hit }) => {
+      const sections = hit.headings?.length
+        ? `\n      sections: ${hit.headings.join(" | ")}`
+        : "";
+      return `[${n}] ${describeSource(hit)}  → ${hit.id}${sections}`;
+    });
 }
 
 async function main(): Promise<void> {
@@ -70,13 +95,15 @@ async function main(): Promise<void> {
   if (!process.env.PINECONE_API_KEY) throw new Error("Missing PINECONE_API_KEY — set it in .env");
   if (!process.env.OPENAI_API_KEY) throw new Error("Missing OPENAI_API_KEY — set it in .env");
 
-  const question = process.argv.slice(2).join(" ").trim() || DEFAULT_QUESTION;
+  const { question, category } = parseArgs(process.argv.slice(2));
 
   console.log("Pattern: Deterministic RAG (retrieve → prompt → LLM)\n");
-  console.log(`Question: ${question}\n`);
+  console.log(`Question: ${question}`);
+  if (category) console.log(`Filter: category = ${category}`);
+  console.log();
 
   console.log("→ retrieve (always runs, model does not decide)…");
-  const hits = usableHits(await searchDocuments({ query: question }));
+  const hits = usableHits(await searchDocuments({ query: question, filters: category ? { category } : undefined }));
   const context = formatContext(hits);
 
   console.log("Retrieved context:\n");

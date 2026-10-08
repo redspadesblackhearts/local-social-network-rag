@@ -8,6 +8,8 @@ export interface SearchHit {
   document?: string;
   doc_title?: string;
   heading?: string;
+  /** Heading paths of every section packed into the chunk. */
+  headings?: string[];
   category?: string;
   interviewee?: string;
   count?: number;
