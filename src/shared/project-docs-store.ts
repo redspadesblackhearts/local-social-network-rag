@@ -55,6 +55,7 @@ function hitFromMatch(match: ScoredPineconeRecord<RecordMetadata>): SearchHit {
 export async function searchDocuments({
   query,
   filters,
+  topK = 5,
 }: SearchDocumentsInput): Promise<SearchHit[]> {
   const openai = getOpenAI();
   const ns = await getNamespace();
@@ -67,7 +68,7 @@ export async function searchDocuments({
 
   const results = await ns.query({
     vector,
-    topK: 5,
+    topK,
     includeMetadata: true,
     ...(filter ? { filter } : {}),
   });

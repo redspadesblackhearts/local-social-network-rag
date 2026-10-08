@@ -21,6 +21,10 @@ import type { SearchHit } from "../shared/types.js";
 const DEFAULT_QUESTION = "What happens when I join an activity that needs approval?";
 
 const TOP_K = 4;
+const CANDIDATES = 20; // fetched so a missing document's best chunk can be found
+const MIN_SCORE_MARGIN = 0.1;
+const MIN_SCORE = 0.2; // absolute floor: when everything scores low, a "close" chunk is still junk
+const DOCUMENTS = ["app-specification.pdf", "product-discovery.pdf"];
 const NOT_FOUND = "I could not find that in the project documents.";
 
 const SYSTEM_PROMPT =
@@ -49,8 +53,33 @@ function parseArgs(argv: string[]): { question: string; category?: string } {
   return { question, category: category ?? (/\binterview/i.test(question) ? "interview" : undefined) };
 }
 
-function usableHits(hits: SearchHit[]): SearchHit[] {
-  return hits.filter((h) => h.id !== "none").slice(0, TOP_K);
+/**
+ * Top TOP_K chunks. Minimum guarantee: if a document is missing from them, its best chunk is
+ * added when it scores within MIN_SCORE_MARGIN of the top hit, so cross-document questions see
+ * both documents while single-document questions stay free of weak, unrelated chunks.
+ */
+function selectHits(candidates: SearchHit[], guaranteeDocuments: boolean): SearchHit[] {
+  const valid = candidates.filter((h) => h.id !== "none");
+  const selected = valid.slice(0, TOP_K);
+  if (!guaranteeDocuments || !selected.length) return selected;
+
+  const topScore = selected[0].score ?? 0;
+  for (const document of DOCUMENTS) {
+    if (selected.some((h) => h.source_file === document)) continue;
+    const best = valid.find((h) => h.source_file === document);
+    if (!best) {
+      console.log(`Guarantee: no ${document} chunk among the ${CANDIDATES} candidates`);
+    } else if ((best.score ?? 0) >= Math.max(topScore - MIN_SCORE_MARGIN, MIN_SCORE)) {
+      console.log(`Guarantee: added ${best.id} (score ${best.score?.toFixed(3)}, top ${topScore.toFixed(3)})`);
+      selected.push(best);
+    } else {
+      console.log(
+        `Guarantee: best ${document} chunk scores ${best.score?.toFixed(3)}, ` +
+          `top is ${topScore.toFixed(3)}; needs within ${MIN_SCORE_MARGIN} of it and at least ${MIN_SCORE}, not added`,
+      );
+    }
+  }
+  return selected;
 }
 
 function describeSource(hit: SearchHit): string {
@@ -103,7 +132,12 @@ async function main(): Promise<void> {
   console.log();
 
   console.log("→ retrieve (always runs, model does not decide)…");
-  const hits = usableHits(await searchDocuments({ query: question, filters: category ? { category } : undefined }));
+  const candidates = await searchDocuments({
+    query: question,
+    filters: category ? { category } : undefined,
+    topK: CANDIDATES,
+  });
+  const hits = selectHits(candidates, !category);
   const context = formatContext(hits);
 
   console.log("Retrieved context:\n");

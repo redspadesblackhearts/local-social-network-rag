@@ -18,4 +18,6 @@ export interface SearchHit {
 export interface SearchDocumentsInput {
   query: string;
   filters?: Record<string, unknown>;
+  /** Number of candidates to fetch (default 5). */
+  topK?: number;
 }
