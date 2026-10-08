@@ -30,20 +30,27 @@ async function embedQuery(openai: OpenAI, query: string): Promise<number[]> {
   return response.data[0].embedding;
 }
 
+function text(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
 function hitFromMatch(match: ScoredPineconeRecord<RecordMetadata>): SearchHit {
   const meta = match.metadata ?? {};
   return {
     id: match.id,
-    text: typeof meta.chunk_text === "string" ? meta.chunk_text : "",
-    page: typeof meta.page === "number" ? meta.page : undefined,
-    section: typeof meta.section === "string" ? meta.section : undefined,
-    section_id:
-      typeof meta.section_id === "string" ? meta.section_id : undefined,
+    text: text(meta.chunk_text) ?? "",
     score: match.score,
+    page: typeof meta.page === "number" ? meta.page : undefined,
+    source_file: text(meta.source_file),
+    document: text(meta.document),
+    doc_title: text(meta.doc_title),
+    heading: text(meta.heading),
+    category: text(meta.category),
+    interviewee: text(meta.interviewee),
   };
 }
 
-/** Semantic search over seeded Pinecone vectors (shared by RAG + MCP examples). */
+/** Semantic search over the project documents in the own Pinecone namespace. */
 export async function searchDocuments({
   query,
   filters,
@@ -53,8 +60,8 @@ export async function searchDocuments({
   const vector = await embedQuery(openai, query);
 
   const filter =
-    filters?.section && typeof filters.section === "string"
-      ? { section: { $eq: filters.section } }
+    filters?.category && typeof filters.category === "string"
+      ? { category: { $eq: filters.category } }
       : undefined;
 
   const results = await ns.query({

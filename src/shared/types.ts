@@ -1,10 +1,15 @@
 export interface SearchHit {
+  /** Chunk id, e.g. `app-specification-join-activity-use-case-01`. */
   id: string;
   text: string;
-  page?: number;
-  section?: string;
-  section_id?: string;
   score?: number;
+  page?: number;
+  source_file?: string;
+  document?: string;
+  doc_title?: string;
+  heading?: string;
+  category?: string;
+  interviewee?: string;
   count?: number;
 }
 
