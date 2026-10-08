@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "example:rag:deterministic": "tsx example/rag/deterministic-chain.ts",
+    "rag:deterministic": "tsx src/rag/deterministic-chain.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

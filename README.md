@@ -24,8 +24,9 @@ npm run typecheck
 
 | Path | Purpose |
 |------|---------|
-| `example/rag/deterministic-chain.ts` | Retrieval chain (always retrieve → prompt → LLM) |
-| `example/shared/handbook-store.ts` | Pinecone search (embeds the query with `text-embedding-3-small`) |
-| `example/shared/types.ts`, `load-env.ts` | Shared types and env loading |
+| `documents/*.pdf` | The two indexed PDFs (app specification, product discovery) |
+| `src/rag/deterministic-chain.ts` | Retrieval chain (always retrieve → prompt → LLM) |
+| `src/shared/project-docs-store.ts` | Pinecone search (embeds the query with `text-embedding-3-small`) |
+| `src/shared/types.ts`, `load-env.ts` | Shared types and env loading |
 
 Index: `local-social-network` (1536 dimensions, cosine). Namespace: `lsn-own-rag`.

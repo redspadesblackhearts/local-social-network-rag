@@ -13,7 +13,7 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { loadEnv } from "../shared/load-env.js";
-import { searchDocuments } from "../shared/handbook-store.js";
+import { searchDocuments } from "../shared/project-docs-store.js";
 import type { SearchHit } from "../shared/types.js";
 
 const DEFAULT_QUESTION =
