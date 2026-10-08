@@ -70,6 +70,12 @@
       "kind": "unanswerable",
       "question": "How much does the premium subscription cost?",
       "expect_refusal": true
+    },
+    {
+      "id": "unanswerable-project-lead",
+      "kind": "unanswerable",
+      "question": "In what projects is the project lead also involved?",
+      "expect_refusal": true
     }
   ]
 }

@@ -35,7 +35,7 @@ Each original file is recovered from its `Source file:` line.
 
 ```bash
 npm run rag:deterministic -- "Who can accept a participation request?"
-npm run eval:golden                       # 10 golden questions, exit code 1 on a regression
+npm run eval:golden                       # 11 golden questions, exit code 1 on a regression
 npm run eval:golden -- --only easy-rick-age,unanswerable-ceo
 ```
 
